@@ -151,11 +151,23 @@ const SEC=[
 ["oily","Hair that has too much natural oil, so it looks shiny, wet and greasy.","دهني"],
 ["scalp","The skin on top of your head where the hair grows.","فروة الرأس"],
 ["silky","Hair that is very soft, smooth and shiny, like silk.","ناعم كالحرير"]
+]},
+ {id:"nail",en:"Nail",ar:"الأظافر",w:[
+["black nail","A fingernail that turns dark or black, usually from blood under the nail after an injury.","ظفر أسود (اسوداد الظفر)"],
+["black toe","A toenail that turns black, often from tight shoes, running or hitting the toe.","اسوداد ظفر إصبع القدم"],
+["brittle","Nails that are weak and dry, so they break, crack or chip very easily.","هشّ (سهل الكسر)"],
+["clubbing","When the fingertips become wide and round and the nails curve down; it can be a sign of lung or heart disease.","تعجّر الأصابع (تبقرط الأظافر)"],
+["cuticle","The thin layer of skin at the bottom edge of the nail.","الجليدة (الجلد حول الظفر)"],
+["floating","When the nail lifts up and separates from the skin under it.","انفصال الظفر عن قاعدته","الأظافر ينمو باتجاه علوي"],
+["fungal infection","An infection caused by fungus that makes the nail thick, yellow and crumbly.","فطريات الأظافر (التهاب فطري)"],
+["ingrown nail","A nail whose edge grows into the skin beside it, causing pain, redness and swelling (often the big toe).","الظفر الغارز (ينمو داخل الجلد)"],
+["peeling nail","A nail whose top layers come off in thin sheets.","تقشّر الأظافر"],
+["splitting nail","A nail that splits into layers or cracks along its length.","تشقّق / انقسام الظفر"]
 ]}
 ];
 const G=w=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent(w+" skin");
 const GQ={hair:w=>w+" hair"};
-const gq=(s,w)=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent(s==="skin"?w+" skin":w+" "+s);
+const gq=(s,w)=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent(w.includes(s)?w:w+" "+s);
 let S=SEC[0],W=S.w,cur=0;
 const grid=document.getElementById('grid'),sheet=document.getElementById('sheet'),tabs=document.getElementById('tabs');
 function render(){
