@@ -54,6 +54,18 @@ body.quiz .card .ar{filter:blur(7px);user-select:none}
 .secnote{background:var(--fixbg);color:var(--ink);border-radius:14px;padding:12px 14px;line-height:1.7;font-size:15px}
 .tip{font-size:13px;color:var(--fix);font-weight:500}
 .tipbox{background:var(--fixbg);color:var(--fix);border-radius:12px;padding:10px 12px;font-size:15px}
+.grp{grid-column:1/-1;margin:14px 0 0;font-size:19px}
+.pcard{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.ptop{display:flex;align-items:center;justify-content:space-between;direction:ltr}
+.pp{font-family:var(--display);font-weight:700;font-size:26px;color:var(--ink)}
+.pe{font-size:22px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{font:inherit;font-size:13px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:5px 9px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;text-align:start;max-width:100%}
+.chip b{direction:ltr;font-size:14px}
+.chip span{font-size:12px;color:var(--muted)}
+.chip:hover{border-color:var(--accent)}
+.chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+body.quiz .chip span{filter:blur(6px)}
 /* sheet */
 .sheet{position:fixed;inset:0;background:rgba(20,10,15,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:0 max(0px,env(safe-area-inset-right,0px)) 0 max(0px,env(safe-area-inset-left,0px))}
 .panel{background:var(--card);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:16px max(18px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;max-height:92%;overflow:auto}
@@ -795,7 +807,21 @@ const SEC=[
 const G=w=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent(w+" skin");
 const GQ={hair:w=>w+" hair"};
 const gq=(s,w)=>{const x=SEC.find(k=>k.id===s);const suf=(x&&x.g)||s;return "https://www.google.com/search?tbm=isch&q="+encodeURIComponent(w.toLowerCase().includes(suf)?w:w+" "+suf)};
-let S=SEC[0],W=S.w,cur=0;
+const PARTS=[{"t": "s", "p": "-itis", "ar": "التهاب", "e": "🔥", "re": "itis$"}, {"t": "s", "p": "-osis", "ar": "حالة / مرض", "e": "", "re": "(osis|osis)$"}, {"t": "s", "p": "-ectomy", "ar": "استئصال (شيل العضو بالجراحة)", "e": "✂️", "re": "ectomy$"}, {"t": "s", "p": "-ostomy", "ar": "فتحة بالجراحة", "e": "", "re": "ostomy$"}, {"t": "s", "p": "-plasty", "ar": "ترميم / تجميل بالجراحة", "e": "", "re": "plasty$"}, {"t": "s", "p": "-gram", "ar": "صورة / تخطيط", "e": "📈", "re": "gram$"}, {"t": "s", "p": "-algia", "ar": "ألم", "e": "", "re": "algia$"}, {"t": "s", "p": "-emia", "ar": "حالة بالدم", "e": "🩸", "re": "emia$"}, {"t": "s", "p": "-uria", "ar": "حالة بالبول", "e": "", "re": "uria$"}, {"t": "s", "p": "-pathy", "ar": "مرض / اعتلال", "e": "", "re": "pathy$"}, {"t": "s", "p": "-phobia", "ar": "خوف / حساسية من", "e": "", "re": "phobia"}, {"t": "s", "p": "-rrhea", "ar": "سيلان (شي يطلع ويجري)", "e": "💧", "re": "rrhea$"}, {"t": "s", "p": "-rrhagia", "ar": "نزيف غزير", "e": "", "re": "rrhagia$"}, {"t": "s", "p": "-cardia", "ar": "حالة بالقلب (سرعة النبض)", "e": "", "re": "cardia$"}, {"t": "s", "p": "-oma", "ar": "ورم", "e": "", "re": "(lymphoma|angioma)$"}, {"t": "s", "p": "-lytic", "ar": "تكسير / تحلّل", "e": "", "re": "lytic"}, {"t": "s", "p": "-cide", "ar": "قاتل", "e": "", "re": "cide$"}, {"t": "p", "p": "hyper-", "ar": "زيادة (فوق الطبيعي)", "e": "⬆️", "re": "^hyper"}, {"t": "p", "p": "hypo-", "ar": "نقص (تحت الطبيعي)", "e": "⬇️", "re": "^hypo"}, {"t": "p", "p": "over-", "ar": "زيادة", "e": "⬆️", "re": "^over"}, {"t": "p", "p": "under-", "ar": "نقص", "e": "⬇️", "re": "^under"}, {"t": "p", "p": "tachy-", "ar": "سريع", "e": "🐇", "re": "^tachy"}, {"t": "p", "p": "brady-", "ar": "بطيء", "e": "🐢", "re": "^brady"}, {"t": "p", "p": "dys-", "ar": "صعوبة / خلل", "e": "", "re": "^dys"}, {"t": "p", "p": "a- / an-", "ar": "بدون / مافي", "e": "🚫", "re": "^(amenorrhea|anemia|atonic|atrophy|arrhythmia|atrophic)"}, {"t": "p", "p": "anti-", "ar": "ضد", "e": "🛡️", "re": "^anti"}, {"t": "p", "p": "de-", "ar": "إزالة / عكس", "e": "", "re": "^(decongestant|deformity|degenerative)"}, {"t": "p", "p": "in- / ir- / un-", "ar": "مو (عكس الكلمة)", "e": "", "re": "^(inoperable|irreversible|involuntary|incontinence|irregular|unsteady|infertility)"}, {"t": "p", "p": "intra-", "ar": "داخل", "e": "", "re": "^intra"}, {"t": "p", "p": "inter-", "ar": "بين", "e": "", "re": "^inter"}, {"t": "p", "p": "peri-", "ar": "حول", "e": "⭕", "re": "^peri"}, {"t": "p", "p": "pre-", "ar": "قبل", "e": "", "re": "^pre(menstrual)"}, {"t": "p", "p": "post-", "ar": "بعد", "e": "", "re": "^post(nasal|void|partum)"}, {"t": "p", "p": "poly-", "ar": "كثير / متعدد", "e": "", "re": "^poly"}, {"t": "p", "p": "mal-", "ar": "سيء", "e": "", "re": "^mal"}, {"t": "p", "p": "epi-", "ar": "فوق", "e": "", "re": "^epi(gastric|nephrine)"}, {"t": "p", "p": "endo-", "ar": "داخل", "e": "", "re": "^endo"}, {"t": "r", "p": "derm", "ar": "جلد", "e": "", "re": "derm"}, {"t": "r", "p": "cardi", "ar": "قلب", "e": "❤️", "re": "cardi"}, {"t": "r", "p": "gastr", "ar": "معدة", "e": "", "re": "gastr"}, {"t": "r", "p": "enter", "ar": "أمعاء", "e": "", "re": "enter"}, {"t": "r", "p": "hepat", "ar": "كبد", "e": "", "re": "hepat"}, {"t": "r", "p": "rhin", "ar": "أنف", "e": "👃", "re": "rhin"}, {"t": "r", "p": "my / myo", "ar": "عضلة", "e": "💪", "re": "myo|myal"}, {"t": "r", "p": "oste", "ar": "عظم", "e": "🦴", "re": "^oste"}, {"t": "r", "p": "arthr", "ar": "مفصل", "e": "", "re": "arthr"}, {"t": "r", "p": "hem / hemat", "ar": "دم", "e": "🩸", "re": "^hem|emia$"}, {"t": "r", "p": "thyr", "ar": "الغدة الدرقية", "e": "", "re": "thyr"}, {"t": "r", "p": "glyc", "ar": "سكر", "e": "🍬", "re": "glycemia"}, {"t": "r", "p": "angi", "ar": "وعاء دموي", "e": "", "re": "angi(o|oma)"}, {"t": "r", "p": "encephal", "ar": "دماغ", "e": "🧠", "re": "encephal"}, {"t": "r", "p": "neur", "ar": "عصب", "e": "", "re": "^neur"}, {"t": "r", "p": "cyst", "ar": "مثانة / كيس", "e": "", "re": "cyst"}, {"t": "r", "p": "urethr", "ar": "مجرى البول", "e": "", "re": "urethr"}, {"t": "r", "p": "vagin", "ar": "المهبل", "e": "", "re": "vagin"}, {"t": "r", "p": "mast", "ar": "ثدي", "e": "", "re": "^mast"}, {"t": "r", "p": "hyster", "ar": "رحم", "e": "", "re": "hyster"}, {"t": "r", "p": "men / meno", "ar": "الدورة الشهرية", "e": "🗓️", "re": "^men(o|s|a)|menorrh|menarche|perimenopause|premenstrual"}, {"t": "r", "p": "pulmon", "ar": "رئة", "e": "🫁", "re": "pulmon"}, {"t": "r", "p": "bronch", "ar": "الشعب الهوائية", "e": "", "re": "bronch"}, {"t": "r", "p": "pnea", "ar": "تنفّس", "e": "", "re": "pnea"}, {"t": "r", "p": "phagia", "ar": "بلع", "e": "", "re": "phagia"}, {"t": "r", "p": "esophag", "ar": "مريء", "e": "", "re": "esophag"}, {"t": "r", "p": "col", "ar": "قولون", "e": "", "re": "^(colon|colostomy)$"}, {"t": "r", "p": "gingiv", "ar": "لثة", "e": "", "re": "gingiv"}, {"t": "r", "p": "thromb", "ar": "جلطة", "e": "", "re": "thromb"}, {"t": "r", "p": "scler", "ar": "تصلّب", "e": "", "re": "scler"}, {"t": "r", "p": "photo", "ar": "ضوء", "e": "☀️", "re": "photo"}, {"t": "r", "p": "noct", "ar": "ليل", "e": "🌙", "re": "noct"}, {"t": "r", "p": "spondyl", "ar": "فقرة بالعمود الفقري", "e": "", "re": "spondyl"}, {"t": "r", "p": "tension", "ar": "ضغط", "e": "", "re": "tension"}];
+const PRE=PARTS.map(p=>({...p,rx:new RegExp(p.re,'i')}));
+const partsOf=en=>{const t=en.split(/[\s\-']+/);const o={p:0,r:1,s:2};return PRE.filter(p=>t.some(x=>p.rx.test(x))).sort((a,b)=>o[a.t]-o[b.t])};
+const partLine=en=>partsOf(en).map(p=>`<b dir="ltr">${p.p}</b> = ${p.ar}`).join(' ＋ ');
+SEC.unshift({id:"parts",en:"🧩 Word parts",ar:"قطع الكلمات",parts:true,note:"الكلمة الطبية مثل الليغو 🧱 تتركّب من قطع. إذا عرفتي معنى القطعة، تعرفين معنى الكلمة بدون حفظ. مثال: gastr (معدة) + itis (التهاب) = gastritis يعني التهاب المعدة. اضغطي على أي كلمة عشان تفتحينها.",w:PARTS});
+let prevS=null;
+function renderParts(){
+  const groups=[["s","🔚 آخر الكلمة (Suffix)"],["p","🔜 أول الكلمة (Prefix)"],["r","🫀 أصل الكلمة: عضو أو شي بالجسم (Root)"]];
+  const all=[];SEC.filter(x=>!x.abbr&&!x.parts).forEach(x=>x.w.forEach((w,i)=>{if(!all.find(y=>y.en===w[0]))all.push({en:w[0],ar:w[2],s:x.id,i})}));
+  grid.innerHTML=groups.map(([t,label])=>`<h2 class="grp">${label}</h2>`+PRE.filter(p=>p.t===t).map(p=>{
+    const m=all.filter(w=>w.en.split(/[\s\-']+/).some(x=>p.rx.test(x)));
+    return `<div class="pcard"><div class="ptop"><span class="pp">${p.p}</span><span class="pe">${p.e||""}</span></div><div class="ar">${p.ar}</div>
+<div class="chips">${m.map(w=>`<button type="button" class="chip" data-s="${w.s}" data-i="${w.i}"><b>${w.en}</b><span>${w.ar}</span></button>`).join('')}</div></div>`}).join('')).join('');
+}
+let S=SEC.find(x=>!x.parts),W=S.w,cur=0;
 const grid=document.getElementById('grid'),sheet=document.getElementById('sheet'),tabs=document.getElementById('tabs');
 function render(){
   W=S.w;
@@ -803,9 +829,10 @@ function render(){
   document.getElementById('sub').textContent=S.abbr?`${W.length} اختصار · اضغطي على أي واحد عشان تفتحينه`:`${W.length} كلمة · اضغطi على الكلمة عشان تفتحينها، و«صور قوقل» عشان تشوفين صور حقيقية`.replace('اضغطi','اضغطي');
   const nt=document.getElementById('secnote');nt.hidden=!S.note;nt.textContent=S.note?'💡 '+S.note:'';
   tabs.innerHTML=SEC.map(s=>`<button type="button" role="tab" aria-selected="${s===S}" data-id="${s.id}">${s.en}<span>${s.w.length}</span></button>`).join('');
+  if(S.parts){document.getElementById('sub').textContent=`${PARTS.length} قطعة · تفك لج مئات الكلمات`;renderParts();return}
   grid.innerHTML=W.map(([en,def,ar,was,tip],i)=>`<div class="card" role="button" tabindex="0" data-i="${i}">
 <span class="num">${i+1}</span>${was?'<span class="dot fixed" title="صُحح"></span>':''}
-<span class="en">${en}</span><span class="def">${def}</span><span class="ar">${ar}</span>${tip?`<span class="tip">💡 ${tip}</span>`:""}${S.abbr?"":`<a class="gbtn" href="${gq(S.id,en)}" target="_blank" rel="noopener">🔍 صور قوقل</a>`}</div>`).join('');
+<span class="en">${en}</span><span class="def">${def}</span><span class="ar">${ar}</span>${tip?`<span class="tip">💡 ${tip}</span>`:""}${!S.abbr&&partsOf(en).length?`<span class="tip">🧩 ${partLine(en)}</span>`:""}${S.abbr?"":`<a class="gbtn" href="${gq(S.id,en)}" target="_blank" rel="noopener">🔍 صور قوقل</a>`}</div>`).join('');
 }
 tabs.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S=SEC.find(s=>s.id===b.dataset.id);render();try{localStorage.setItem('sec',S.id)}catch(e){}window.scrollTo(0,0)});
 function open(i){
@@ -815,7 +842,7 @@ function open(i){
   <div class="top"><span class="en">${en}</span><button class="say" id="say" type="button" aria-label="نطق">🔊</button></div>
   <div class="def">${def}</div>
   <div class="ar">${ar}</div>
-  ${tip?`<div class="tipbox">💡 ${tip}</div>`:""}${S.abbr?"":`<a class="real" href="${gq(S.id,en)}" target="_blank" rel="noopener">🔍 شوفي صور ${en} في قوقل</a>`}
+  ${tip?`<div class="tipbox">💡 ${tip}</div>`:""}${!S.abbr&&partsOf(en).length?`<div class="tipbox">🧩 تفكيك الكلمة: ${partLine(en)}</div>`:""}${S.abbr?"":`<a class="real" href="${gq(S.id,en)}" target="_blank" rel="noopener">🔍 شوفي صور ${en} في قوقل</a>`}
   ${was?`<div class="note">بالملف مكتوب: <s>${was}</s> ← الأدق: ${ar}</div>`:''}
   <div class="nav"><button type="button" id="nx">التالي ←</button><button type="button" class="close" id="cl">إغلاق</button><button type="button" id="pv">→ السابق</button></div>
   </div>`;
@@ -825,8 +852,8 @@ function open(i){
   document.getElementById('cl').onclick=close;
   document.getElementById('say').onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(en);u.lang='en-US';u.rate=.85;speechSynthesis.speak(u)}catch(e){}};
 }
-function close(){sheet.hidden=true;sheet.innerHTML=''}
-grid.addEventListener('click',e=>{if(e.target.closest('.gbtn'))return;const b=e.target.closest('.card');if(b)open(+b.dataset.i)});
+function close(){sheet.hidden=true;sheet.innerHTML='';if(prevS){S=prevS;W=S.w;prevS=null}}
+grid.addEventListener('click',e=>{const c=e.target.closest('.chip');if(c){prevS=S;S=SEC.find(x=>x.id===c.dataset.s);W=S.w;open(+c.dataset.i);return}if(e.target.closest('.gbtn'))return;const b=e.target.closest('.card');if(b)open(+b.dataset.i)});
 grid.addEventListener('keydown',e=>{const b=e.target.closest('.card');if(b&&e.target===b&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(+b.dataset.i)}});
 sheet.addEventListener('click',e=>{if(e.target===sheet)close()});
 document.addEventListener('keydown',e=>{if(sheet.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')open(cur+1);if(e.key==='ArrowRight')open(cur-1)});
