@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Skin Vocabulary</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +22,7 @@
   --bg:#1b1418; --card:#261c22; --ink:#f5e9ec; --muted:#b29aa5;
   --accent:#f07f95; --soft:#3a2630; --fix:#6fd3a7; --fixbg:#183329; --line:#3a2b33; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 60px}
 .wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
@@ -60,6 +66,9 @@ body.quiz .card .ar{filter:blur(7px);user-select:none}
 .nav button.close{background:var(--soft)}
 @media (prefers-reduced-motion:no-preference){.panel{animation:up .22s ease-out}@keyframes up{from{transform:translateY(30px);opacity:.4}}}
 </style>
+</head>
+<body>
+
 
 <div class="wrap" dir="rtl">
   <header>
@@ -162,3 +171,6 @@ document.addEventListener('keydown',e=>{if(sheet.hidden)return;if(e.key==='Escap
 const q=document.getElementById('quiz');
 q.onclick=()=>{const on=q.getAttribute('aria-pressed')!=='true';q.setAttribute('aria-pressed',on);document.body.classList.toggle('quiz',on)};
 </script>
+
+</body>
+</html>
