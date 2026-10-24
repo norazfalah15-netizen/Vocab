@@ -37,7 +37,11 @@ header p{margin:6px 0 0;color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
 .card{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0;position:relative}
 .card:hover{border-color:var(--accent)}
-.gbtn{align-self:flex-start;margin-top:6px;font-size:13px;font-weight:700;color:var(--accent);background:var(--soft);text-decoration:none;padding:6px 12px;border-radius:999px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.csay{font:inherit;font-size:13px;font-weight:700;border:none;cursor:pointer;color:var(--fix);background:var(--fixbg);padding:6px 12px;border-radius:999px}
+.csay:active{transform:scale(.95)}
+.csay:focus-visible{outline:3px solid var(--fix);outline-offset:2px}
+.gbtn{align-self:flex-start;margin-top:0;font-size:13px;font-weight:700;color:var(--accent);background:var(--soft);text-decoration:none;padding:6px 12px;border-radius:999px}
 .gbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .en{font-family:var(--display);font-weight:700;font-size:22px;direction:ltr;text-align:left;line-height:1.2}
@@ -830,6 +834,16 @@ function renderParts(){
     `<div class="pcard"><div class="ptop"><span class="pp">${k}</span><span class="pn">${m.length} كلمة</span></div><div class="ar">${PD[k]}</div>
 <div class="chips">${m.map(w=>`<button type="button" class="chip" data-s="${w.s}" data-i="${w.i}"><b>${w.en}</b><span>${w.ar}</span></button>`).join('')}</div></div>`).join('')).join('');
 }
+let VOICE=null;
+function pickVoice(){try{const v=speechSynthesis.getVoices();const en=v.filter(x=>/^en[-_]/i.test(x.lang));
+ const pref=["Samantha","Ava","Allison","Susan","Google US English","Microsoft Aria","Microsoft Jenny","Karen","Daniel","Google UK English Female"];
+ VOICE=pref.map(n=>en.find(x=>x.name.includes(n)&&/enhanced|premium/i.test(x.name))||en.find(x=>x.name.includes(n))).find(Boolean)||en.find(x=>/en-US/i.test(x.lang)&&x.localService)||en.find(x=>/en-US/i.test(x.lang))||en[0]||null}catch(e){}}
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
+let lastSay={t:"",at:0};
+function say(text,abbr){try{speechSynthesis.cancel();
+ let t=text;if(abbr){t=text.split(/,\s*/)[0].replace(/[()+.]/g,' ').replace(/\b([a-z]{1,5})\b/gi,m=>/^(stat|sig|liq|syr|tab|supp|pulv|inj|mist|ung|troche|admov|mitte|elix|emul|lot|cap|susp|sol|aq|dest|labs|allergies|pharmd)$/i.test(m)?m:m.toUpperCase().split('').join(' '))}
+ const now=Date.now();const slow=lastSay.t===text&&now-lastSay.at<4000;lastSay={t:text,at:now};
+ const u=new SpeechSynthesisUtterance(t);u.lang=(VOICE&&VOICE.lang)||'en-US';if(VOICE)u.voice=VOICE;u.rate=slow?0.55:0.8;u.pitch=1;speechSynthesis.speak(u)}catch(e){}}
 let S=SEC.find(x=>!x.parts),W=S.w,cur=0;
 const grid=document.getElementById('grid'),sheet=document.getElementById('sheet'),tabs=document.getElementById('tabs');
 function render(){
@@ -841,7 +855,7 @@ function render(){
   if(S.parts){document.getElementById('sub').textContent=`${USED.length} قطعة · تفك لج ${Object.keys(PB).length} كلمة`;renderParts();return}
   grid.innerHTML=W.map(([en,def,ar,was,tip],i)=>`<div class="card" role="button" tabindex="0" data-i="${i}">
 <span class="num">${i+1}</span>${was?'<span class="dot fixed" title="صُحح"></span>':''}
-<span class="en">${en}</span><span class="def">${def}</span><span class="ar">${ar}</span>${tip?`<span class="tip">💡 ${tip}</span>`:""}${!S.abbr&&partsOf(en).length?`<span class="tip">🧩 ${partLine(en)}</span>`:""}${S.abbr?"":`<a class="gbtn" href="${gq(S.id,en)}" target="_blank" rel="noopener">🔍 صور قوقل</a>`}</div>`).join('');
+<span class="en">${en}</span><span class="def">${def}</span><span class="ar">${ar}</span>${tip?`<span class="tip">💡 ${tip}</span>`:""}${!S.abbr&&partsOf(en).length?`<span class="tip">🧩 ${partLine(en)}</span>`:""}<div class="acts"><button type="button" class="csay" data-say="${i}" aria-label="نطق ${en}">🔊 نطق</button>${S.abbr?"":`<a class="gbtn" href="${gq(S.id,en)}" target="_blank" rel="noopener">🔍 صور قوقل</a>`}</div></div>`).join('');
 }
 tabs.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S=SEC.find(s=>s.id===b.dataset.id);render();try{localStorage.setItem('sec',S.id)}catch(e){}window.scrollTo(0,0)});
 function open(i){
@@ -859,10 +873,10 @@ function open(i){
   document.getElementById('nx').onclick=()=>open(cur+1);
   document.getElementById('pv').onclick=()=>open(cur-1);
   document.getElementById('cl').onclick=close;
-  document.getElementById('say').onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(en);u.lang='en-US';u.rate=.85;speechSynthesis.speak(u)}catch(e){}};
+  document.getElementById('say').onclick=()=>say(en,S.abbr);
 }
 function close(){sheet.hidden=true;sheet.innerHTML='';if(prevS){S=prevS;W=S.w;prevS=null}}
-grid.addEventListener('click',e=>{const c=e.target.closest('.chip');if(c){prevS=S;S=SEC.find(x=>x.id===c.dataset.s);W=S.w;open(+c.dataset.i);return}if(e.target.closest('.gbtn'))return;const b=e.target.closest('.card');if(b)open(+b.dataset.i)});
+grid.addEventListener('click',e=>{const c=e.target.closest('.chip');if(c){prevS=S;S=SEC.find(x=>x.id===c.dataset.s);W=S.w;open(+c.dataset.i);return}const sb=e.target.closest('.csay');if(sb){say(W[+sb.dataset.say][0],S.abbr);return}if(e.target.closest('.gbtn'))return;const b=e.target.closest('.card');if(b)open(+b.dataset.i)});
 grid.addEventListener('keydown',e=>{const b=e.target.closest('.card');if(b&&e.target===b&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open(+b.dataset.i)}});
 sheet.addEventListener('click',e=>{if(e.target===sheet)close()});
 document.addEventListener('keydown',e=>{if(sheet.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')open(cur+1);if(e.key==='ArrowRight')open(cur-1)});
